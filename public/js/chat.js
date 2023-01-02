@@ -1,13 +1,13 @@
-const socket = io("http://localhost:3000");
-let idChatRoom = "";
+const socket = io('http://localhost:3000');
+let idChatRoom = '';
 
 function onLoad() {
   const urlParams = new URLSearchParams(window.location.search);
-  const name = urlParams.get("name");
-  const avatar = urlParams.get("avatar");
-  const email = urlParams.get("email");
+  const name = urlParams.get('name');
+  const avatar = urlParams.get('avatar');
+  const email = urlParams.get('email');
 
-  document.querySelector(".user_logged").innerHTML += `
+  document.querySelector('.user_logged').innerHTML += `
     <img
       class="avatar_user_logged"
       src=${avatar}
@@ -16,13 +16,13 @@ function onLoad() {
   
   `;
 
-  socket.emit("start", {
+  socket.emit('start', {
     email,
     name,
     avatar,
   });
 
-  socket.on("new_users", (user) => {
+  socket.on('new_users', (user) => {
     const existInDiv = document.getElementById(`user_${user._id}`);
 
     if (!existInDiv) {
@@ -30,7 +30,7 @@ function onLoad() {
     }
   });
 
-  socket.emit("get_users", (users) => {
+  socket.emit('get_users', (users) => {
     users.map((user) => {
       if (user.email !== email) {
         addUser(user);
@@ -38,18 +38,18 @@ function onLoad() {
     });
   });
 
-  socket.on("message", (data) => {
+  socket.on('message', (data) => {
     if (data.message.roomId === idChatRoom) {
       addMessage(data);
     }
   });
 
-  socket.on("notification", (data) => {
+  socket.on('notification', (data) => {
     if (data.roomId !== idChatRoom) {
       const user = document.getElementById(`user_${data.from._id}`);
 
       user.insertAdjacentHTML(
-        "afterbegin",
+        'afterbegin',
         ` 
         <div class="notification"></div>
       `
@@ -59,7 +59,7 @@ function onLoad() {
 }
 
 function addMessage(data) {
-  const divMessageUser = document.getElementById("message_user");
+  const divMessageUser = document.getElementById('message_user');
 
   divMessageUser.innerHTML += ` 
   <span class="user_name user_name_date">
@@ -69,7 +69,7 @@ function addMessage(data) {
       />
       <strong> ${data.user.name} &nbsp; </strong>
       <span>  ${dayjs(data.message.created_at).format(
-        "DD/MM/YYYY HH:mm"
+        'DD/MM/YYYY HH:mm'
       )} </span></span
     >
     <div class="messages">
@@ -79,7 +79,7 @@ function addMessage(data) {
 }
 
 function addUser(user) {
-  const usersList = document.getElementById("users_list");
+  const usersList = document.getElementById('users_list');
   usersList.innerHTML += ` 
     <li
       class="user_name_list"
@@ -95,19 +95,19 @@ function addUser(user) {
   `;
 }
 
-document.getElementById("users_list").addEventListener("click", (e) => {
-  const inputMessage = document.getElementById("user_message");
-  inputMessage.classList.remove("hidden");
+document.getElementById('users_list').addEventListener('click', (e) => {
+  const inputMessage = document.getElementById('user_message');
+  inputMessage.classList.remove('hidden');
 
   document
-    .querySelectorAll("li.user_name_list")
-    .forEach((item) => item.classList.remove("user_in_focus"));
+    .querySelectorAll('li.user_name_list')
+    .forEach((item) => item.classList.remove('user_in_focus'));
 
-  document.getElementById("message_user").innerHTML = "";
-  if (e.target && e.target.matches("li.user_name_list")) {
-    const idUser = e.target.getAttribute("idUser");
+  document.getElementById('message_user').innerHTML = '';
+  if (e.target && e.target.matches('li.user_name_list')) {
+    const idUser = e.target.getAttribute('idUser');
 
-    e.target.classList.add("user_in_focus");
+    e.target.classList.add('user_in_focus');
 
     const notification = document.querySelector(
       `#user_${idUser} .notification`
@@ -116,7 +116,7 @@ document.getElementById("users_list").addEventListener("click", (e) => {
       notification.remove();
     }
 
-    socket.emit("start_chat", { idUser }, (response) => {
+    socket.emit('start_chat', { idUser }, (response) => {
       idChatRoom = response.room.idChatRoom;
 
       response.messages.forEach((message) => {
@@ -131,18 +131,18 @@ document.getElementById("users_list").addEventListener("click", (e) => {
   }
 });
 
-document.getElementById("user_message").addEventListener("keypress", (e) => {
-  if (e.key === "Enter") {
+document.getElementById('user_message').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
     const message = e.target.value;
 
-    e.target.value = "";
+    e.target.value = '';
 
     const data = {
       message,
       idChatRoom,
     };
 
-    socket.emit("message", data);
+    socket.emit('message', data);
   }
 });
 
